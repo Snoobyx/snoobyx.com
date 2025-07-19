@@ -1,0 +1,163 @@
+body {
+    margin: 32px 0;
+    padding: 0;
+    color: #000000;
+    background: #ffffff;
+    text-align: center;
+    font-family: "Helvetica Neue", Helvetica, Arial, serif;
+    font-size: 16px;
+}
+
+a,
+a:visited,
+a:hover,
+a:active {
+    color: #000000;
+    text-decoration: none;
+}
+
+#logo {
+    width: 960px;
+    height: 320px;
+    margin: 0 auto;
+    background-image: image-set(
+        url("snoobyx@2x.png") 1x,
+        url("snoobyx@4x.png") 2x
+    );
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+}
+
+.links {
+    max-width: 960px;
+    margin: 16px auto;
+    white-space: pre-line;
+}
+
+.link {
+    position: relative;
+    display: inline-block;
+    line-height: 16px;
+    padding: 8px;
+    margin: 8px;
+}
+
+.link::after {
+    content: "";
+    position: absolute;
+    width: 100%;
+    transform: scaleX(0);
+    height: 1px;
+    bottom: 0;
+    left: 0;
+    background-color: #000000;
+    transform-origin: bottom right;
+    transition: transform 250ms ease-out;
+}
+
+.link:hover::after {
+    transform: scaleX(1);
+    transform-origin: bottom left;
+}
+
+.link::before {
+    content: " ";
+    float: left;
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+    background-image: url("links/link.png");
+    background-size: 16px 16px;
+    background-repeat: no-repeat;
+}
+
+#links_mail::before {
+    background-image: image-set(
+        url("links/mail.png") 1x,
+        url("links/mail@2x.png") 2x
+    );
+}
+#links_signal::before {
+    background-image: image-set(
+        url("links/signal.png") 1x,
+        url("links/signal@2x.png") 2x
+    );
+}
+#links_telegram::before {
+    background-image: image-set(
+        url("links/telegram.png") 1x,
+        url("links/telegram@2x.png") 2x
+    );
+}
+#links_discord::before {
+    background-image: image-set(
+        url("links/discord.png") 1x,
+        url("links/discord@2x.png") 2x
+    );
+}
+#links_linkedin::before {
+    background-image: image-set(
+        url("links/linkedin.png") 1x,
+        url("links/linkedin@2x.png") 2x
+    );
+}
+#links_insagram::before {
+    background-image: image-set(
+        url("links/instagram.png") 1x,
+        url("links/instagram@2x.png") 2x
+    );
+}
+#links_facebook::before {
+    background-image: image-set(
+        url("links/facebook.png") 1x,
+        url("links/facebook@2x.png") 2x
+    );
+}
+#links_youtube::before {
+    background-image: image-set(
+        url("links/youtube.png") 1x,
+        url("links/youtube@2x.png") 2x
+    );
+}
+#links_tiktok::before {
+    background-image: image-set(
+        url("links/tiktok.png") 1x,
+        url("links/tiktok@2x.png") 2x
+    );
+}
+#links_x::before {
+    background-image: image-set(
+        url("links/x.png") 1x,
+        url("links/x@2x.png") 2x
+    );
+}
+#links_printables::before {
+    background-image: image-set(
+        url("links/printables.png") 1x,
+        url("links/printables@2x.png") 2x
+    );
+}
+#links_makerworld::before {
+    background-image: image-set(
+        url("links/makerworld.png") 1x,
+        url("links/makerworld@2x.png") 2x
+    );
+}
+
+@media only screen and (max-width: 960px) {
+    #logo {
+        width: 480px;
+        height: 160px;
+        background-image: image-set(
+            url("snoobyx.png") 1x,
+            url("snoobyx@2x.png") 2x
+        );
+    }
+}
+
+@media only screen and (max-width: 480px) {
+    #logo {
+        width: 100%;
+    }
+}
