@@ -1,5 +1,6 @@
 @font-face {
   font-family: "Inter";
+  /* Latin-only subset of Inter Variable (~52 KB instead of ~352 KB). */
   src: url("fonts/InterVariable.woff2") format("woff2");
   font-weight: 100 900;
   font-style: normal;
@@ -7,8 +8,8 @@
 }
 
 body {
-  margin: 32px 0;
-  padding: 0;
+  margin: 0;
+  padding: 32px 0;
   color: #000000;
   background: #ffffff;
   text-align: center;
@@ -24,165 +25,106 @@ body {
     sans-serif;
 }
 
-a,
-a:visited,
-a:hover,
-a:active {
-  color: #000000;
+/* Pixel art: when the browser has to scale an image, use nearest-neighbour
+   instead of smoothing. At 1x/2x/3x nothing is scaled, so this changes
+   nothing; on in-between screens (125%, 2.625x…) it keeps edges sharp. */
+img {
+  image-rendering: pixelated;
+}
+
+/* ---------- Logo ---------- */
+/* Size and file come from the <picture> rules in index.html. */
+
+.logo {
+  margin: 0;
+}
+
+/* Centring without half pixels:
+   - put the image's left edge at the middle of the page, rounded to 8px
+     (8px is a whole number of screen pixels at 1x, 1.25x, 1.5x, 2x,
+     2.625x, 2.75x, 3x… so the edge always lands on a real pixel),
+   - then pull it back by half its own width. Every logo file is an even
+     number of pixels wide, so "half" is always whole screen pixels too.
+   The result is at most 4px off true centre — invisible, but pixel-exact. */
+.logo img {
+  display: block;
+  max-width: 100%; /* safety net for very narrow screens */
+  height: auto;
+  margin-left: 50%; /* fallback for browsers without round() */
+  margin-left: round(nearest, 50%, 8px);
+  transform: translateX(-50%);
+}
+
+/* ---------- Links ---------- */
+
+.links {
+  list-style: none;
+  margin: 20px 0;
+  padding: 0 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.links a {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  line-height: 16px;
+  color: inherit;
   text-decoration: none;
 }
 
-#logo {
-  width: 960px;
-  height: 320px;
-  margin: 0 auto;
-  background-image: image-set(
-    url("snoobyx@2x.png") 1x,
-    url("snoobyx@4x.png") 2x
-  );
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: contain;
+.links img {
+  flex: none;
 }
 
-.links {
-  max-width: 960px;
-  margin: 16px auto;
-  white-space: pre-line;
+/* Default icon: any link without its own <img> gets the generic link icon.
+   So a new link (an article, say) can be just <li><a href="…">Title</a></li>. */
+.links a:not(:has(img))::before {
+  content: "";
+  flex: none;
+  width: 16px;
+  height: 16px;
+  background: image-set(
+      url("links/link.png") 1x,
+      url("links/link@2x.png") 2x,
+      url("links/link@3x.png") 3x
+    )
+    center / 16px 16px no-repeat;
+  image-rendering: pixelated; /* not an <img>, so the img rule doesn't cover it */
 }
 
-.link {
-  position: relative;
-  display: inline-block;
-  line-height: 16px;
-  padding: 8px 12px;
-  margin: 4px;
-}
-
-.link::after {
+/* Underline that slides in on hover / keyboard focus */
+.links a::after {
   content: "";
   position: absolute;
-  width: 100%;
-  transform: scaleX(0);
-  height: 1px;
-  bottom: 0;
   left: 0;
-  background-color: #000000;
+  bottom: 0;
+  width: 100%;
+  height: 1px;
+  background-color: currentColor;
+  transform: scaleX(0);
   transform-origin: bottom right;
   transition: transform 250ms ease-out;
 }
 
-.link:hover::after {
+.links a:hover::after,
+.links a:focus-visible::after {
   transform: scaleX(1);
   transform-origin: bottom left;
 }
 
-.link::before {
-  content: " ";
-  float: left;
-  width: 16px;
-  height: 16px;
-  margin-right: 8px;
-  background-image: url("links/link.png");
-  background-size: 16px 16px;
-  background-repeat: no-repeat;
+.links a:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
 }
 
-#links_mail::before {
-  background-image: image-set(
-    url("links/mail.png") 1x,
-    url("links/mail@2x.png") 2x
-  );
-}
-#links_kofi::before {
-  background-image: image-set(
-    url("links/kofi.png") 1x,
-    url("links/kofi@2x.png") 2x
-  );
-}
-#links_signal::before {
-  background-image: image-set(
-    url("links/signal.png") 1x,
-    url("links/signal@2x.png") 2x
-  );
-}
-#links_telegram::before {
-  background-image: image-set(
-    url("links/telegram.png") 1x,
-    url("links/telegram@2x.png") 2x
-  );
-}
-#links_discord::before {
-  background-image: image-set(
-    url("links/discord.png") 1x,
-    url("links/discord@2x.png") 2x
-  );
-}
-#links_linkedin::before {
-  background-image: image-set(
-    url("links/linkedin.png") 1x,
-    url("links/linkedin@2x.png") 2x
-  );
-}
-#links_threads::before {
-  background-image: image-set(
-    url("links/threads.png") 1x,
-    url("links/threads@2x.png") 2x
-  );
-}
-#links_insagram::before {
-  background-image: image-set(
-    url("links/instagram.png") 1x,
-    url("links/instagram@2x.png") 2x
-  );
-}
-#links_facebook::before {
-  background-image: image-set(
-    url("links/facebook.png") 1x,
-    url("links/facebook@2x.png") 2x
-  );
-}
-#links_youtube::before {
-  background-image: image-set(
-    url("links/youtube.png") 1x,
-    url("links/youtube@2x.png") 2x
-  );
-}
-#links_tiktok::before {
-  background-image: image-set(
-    url("links/tiktok.png") 1x,
-    url("links/tiktok@2x.png") 2x
-  );
-}
-#links_x::before {
-  background-image: image-set(url("links/x.png") 1x, url("links/x@2x.png") 2x);
-}
-#links_printables::before {
-  background-image: image-set(
-    url("links/printables.png") 1x,
-    url("links/printables@2x.png") 2x
-  );
-}
-#links_makerworld::before {
-  background-image: image-set(
-    url("links/makerworld.png") 1x,
-    url("links/makerworld@2x.png") 2x
-  );
-}
-
-@media only screen and (max-width: 960px) {
-  #logo {
-    width: 480px;
-    height: 160px;
-    background-image: image-set(
-      url("snoobyx.png") 1x,
-      url("snoobyx@2x.png") 2x
-    );
-  }
-}
-
-@media only screen and (max-width: 480px) {
-  #logo {
-    width: 100%;
+@media (prefers-reduced-motion: reduce) {
+  .links a::after {
+    transition: none;
   }
 }

@@ -1,125 +1,339 @@
 <!doctype html>
-<html>
+<html lang="en">
     <head>
-        <title>Snoobyx.com</title>
         <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Snoobyx.com</title>
         <meta
             name="description"
             content="Denis Zhekov - Product Designer. Inventor."
         />
         <meta name="author" content="Denis Zhekov" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link rel="icon" type="image/png" href="favicon.png" />
+
+        <!-- Link previews (Telegram, Discord, LinkedIn, Signal…) -->
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://snoobyx.com/" />
+        <meta property="og:title" content="Snoobyx.com" />
+        <meta
+            property="og:description"
+            content="Denis Zhekov - Product Designer. Inventor."
+        />
+        <meta property="og:image" content="https://snoobyx.com/og.png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="Snoobyx logo" />
+        <meta name="twitter:card" content="summary_large_image" />
+
+        <!-- Favicons (favicon.ico sits at the root for anything that asks for it directly) -->
+        <link rel="icon" type="image/png" href="favicon.png" sizes="16x16" />
+        <link rel="icon" type="image/png" href="favicon@2x.png" sizes="32x32" />
+        <link rel="icon" type="image/png" href="favicon@3x.png" sizes="48x48" />
+        <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+        <link
+            rel="preload"
+            href="fonts/InterVariable.woff2"
+            as="font"
+            type="font/woff2"
+            crossorigin
+        />
         <link rel="stylesheet" href="style.css" />
     </head>
     <body>
-        <div id="logo"></div>
-        <div class="links">
-            <span id="links_mail" class="link">denis@snoobyx.com</span>
-            <a
-                href="https://ko-fi.com/snoobyx"
-                target="_blank"
-                rel="noopener noreferrer"
-                id="links_kofi"
-                class="link"
-                >Support me on Ko-fi</a
-            >
-            <a
-                href="https://signal.me/#eu/dLSe0c5xwKTJXDvyiHNyaASpex2gT5ROMAfSbF-BSTQIrehO3Z9MM5pyGDIiBBLM"
-                target="_blank"
-                rel="noopener noreferrer"
-                id="links_signal"
-                class="link"
-                >Signal</a
-            >
-            <a
-                href="https://t.me/Snoobyx"
-                target="_blank"
-                rel="noopener noreferrer"
-                id="links_telegram"
-                class="link"
-                >Telegram</a
-            >
-            <a
-                href="https://discordapp.com/users/126821574312460289"
-                target="_blank"
-                rel="noopener noreferrer"
-                id="links_discord"
-                class="link"
-                >Discord</a
-            >
-            <a
-                href="https://www.linkedin.com/in/snoobyx/"
-                target="_blank"
-                rel="noopener noreferrer"
-                id="links_linkedin"
-                class="link"
-                >Linkedin</a
-            >
-            <a
-                href="https://threads.com/@snoobyx"
-                target="_blank"
-                rel="noopener noreferrer"
-                id="links_threads"
-                class="link"
-                >Threads</a
-            >
-            <a
-                href="https://www.instagram.com/snoobyx"
-                target="_blank"
-                rel="noopener noreferrer"
-                id="links_insagram"
-                class="link"
-                >Instagram</a
-            >
-            <a
-                href="https://www.facebook.com/profile.php?id=61558608643429"
-                target="_blank"
-                rel="noopener noreferrer"
-                id="links_facebook"
-                class="link"
-                >Facebook</a
-            >
-            <a
-                href="https://www.youtube.com/@snoobyx"
-                target="_blank"
-                rel="noopener noreferrer"
-                id="links_youtube"
-                class="link"
-                >YouTube</a
-            >
-            <a
-                href="https://www.tiktok.com/@snoobyx"
-                target="_blank"
-                rel="noopener noreferrer"
-                id="links_tiktok"
-                class="link"
-                >TikTok</a
-            >
-            <a
-                href="https://x.com/snoobyx"
-                target="_blank"
-                rel="noopener noreferrer"
-                id="links_x"
-                class="link"
-                >X / Twitter</a
-            >
-            <a
-                href="https://www.printables.com/@DynoZap"
-                target="_blank"
-                rel="noopener noreferrer"
-                id="links_printables"
-                class="link"
-                >Printables</a
-            >
-            <a
-                href="https://makerworld.com/@dynozap"
-                target="_blank"
-                rel="noopener noreferrer"
-                id="links_makerworld"
-                class="link"
-                >Maker World</a
-            >
-        </div>
+        <header>
+            <h1 class="logo">
+                <picture>
+                    <!-- Desktop: more than 960px wide -->
+                    <source
+                        media="(width > 960px) and (resolution >= 2dppx)"
+                        srcset="snoobyx@4x.png"
+                        width="960"
+                        height="320"
+                    /><!-- Mac, 4K at 200% -->
+                    <source
+                        media="(width > 960px) and (resolution >= 1.5dppx)"
+                        srcset="snoobyx@3x.png"
+                        width="960"
+                        height="320"
+                    /><!-- laptops at 150% -->
+                    <source
+                        media="(width > 960px) and (resolution >= 1.25dppx)"
+                        srcset="snoobyx@2x.png"
+                        width="768"
+                        height="256"
+                    /><!-- laptops at 125% -->
+                    <source
+                        media="(width > 960px)"
+                        srcset="snoobyx@2x.png"
+                        width="960"
+                        height="320"
+                    /><!-- normal screens -->
+
+                    <!-- Tablets, small windows, phones sideways: 481–960px wide -->
+                    <source
+                        media="(width > 480px) and (resolution >= 2.9dppx)"
+                        srcset="snoobyx@3x.png"
+                        width="480"
+                        height="160"
+                    /><!-- iPhones sideways -->
+                    <source
+                        media="(width > 480px) and (resolution >= 2dppx)"
+                        srcset="snoobyx@2x.png"
+                        width="480"
+                        height="160"
+                    /><!-- iPad -->
+
+                    <!-- Phones: up to 480px wide -->
+                    <source
+                        media="(resolution >= 2.9dppx)"
+                        srcset="snoobyx-iphone.png"
+                        width="320"
+                        height="107"
+                    /><!-- iPhones. @2x + 1 white row: 320 tall is 106.67px at 3x, which CSS can't do -->
+                    <source
+                        media="(resolution >= 2.5dppx)"
+                        srcset="snoobyx@2x.png"
+                        width="366"
+                        height="122"
+                    /><!-- most Androids (2.625x) -->
+                    <source
+                        media="(resolution >= 1.5dppx)"
+                        srcset="snoobyx.png"
+                        width="240"
+                        height="80"
+                    /><!-- 2x phones: iPhone SE, older iPhones -->
+
+                    <!-- Everything else -->
+                    <img src="snoobyx.png" width="480" height="160" alt="Snoobyx" />
+                </picture>
+            </h1>
+        </header>
+        <main>
+            <ul class="links">
+                <li>
+                    <a href="mailto:denis@snoobyx.com">
+                        <img
+                            src="links/mail.png"
+                            srcset="
+                                links/mail.png    1x,
+                                links/mail@2x.png 2x,
+                                links/mail@3x.png 3x
+                            "
+                            width="16"
+                            height="16"
+                            alt=""
+                        />
+                        denis@snoobyx.com
+                    </a>
+                </li>
+                <li>
+                    <a href="https://ko-fi.com/snoobyx" target="_blank" rel="me noopener noreferrer">
+                        <img
+                            src="links/kofi.png"
+                            srcset="
+                                links/kofi.png    1x,
+                                links/kofi@2x.png 2x,
+                                links/kofi@3x.png 3x
+                            "
+                            width="16"
+                            height="16"
+                            alt=""
+                        />
+                        Support me on Ko-fi
+                    </a>
+                </li>
+                <li>
+                    <a href="https://signal.me/#eu/dLSe0c5xwKTJXDvyiHNyaASpex2gT5ROMAfSbF-BSTQIrehO3Z9MM5pyGDIiBBLM" target="_blank" rel="me noopener noreferrer">
+                        <img
+                            src="links/signal.png"
+                            srcset="
+                                links/signal.png    1x,
+                                links/signal@2x.png 2x,
+                                links/signal@3x.png 3x
+                            "
+                            width="16"
+                            height="16"
+                            alt=""
+                        />
+                        Signal
+                    </a>
+                </li>
+                <li>
+                    <a href="https://t.me/Snoobyx" target="_blank" rel="me noopener noreferrer">
+                        <img
+                            src="links/telegram.png"
+                            srcset="
+                                links/telegram.png    1x,
+                                links/telegram@2x.png 2x,
+                                links/telegram@3x.png 3x
+                            "
+                            width="16"
+                            height="16"
+                            alt=""
+                        />
+                        Telegram
+                    </a>
+                </li>
+                <li>
+                    <a href="https://discord.com/users/126821574312460289" target="_blank" rel="me noopener noreferrer">
+                        <img
+                            src="links/discord.png"
+                            srcset="
+                                links/discord.png    1x,
+                                links/discord@2x.png 2x,
+                                links/discord@3x.png 3x
+                            "
+                            width="16"
+                            height="16"
+                            alt=""
+                        />
+                        Discord
+                    </a>
+                </li>
+                <li>
+                    <a href="https://www.linkedin.com/in/snoobyx/" target="_blank" rel="me noopener noreferrer">
+                        <img
+                            src="links/linkedin.png"
+                            srcset="
+                                links/linkedin.png    1x,
+                                links/linkedin@2x.png 2x,
+                                links/linkedin@3x.png 3x
+                            "
+                            width="16"
+                            height="16"
+                            alt=""
+                        />
+                        LinkedIn
+                    </a>
+                </li>
+                <li>
+                    <a href="https://threads.com/@snoobyx" target="_blank" rel="me noopener noreferrer">
+                        <img
+                            src="links/threads.png"
+                            srcset="
+                                links/threads.png    1x,
+                                links/threads@2x.png 2x,
+                                links/threads@3x.png 3x
+                            "
+                            width="16"
+                            height="16"
+                            alt=""
+                        />
+                        Threads
+                    </a>
+                </li>
+                <li>
+                    <a href="https://www.instagram.com/snoobyx" target="_blank" rel="me noopener noreferrer">
+                        <img
+                            src="links/instagram.png"
+                            srcset="
+                                links/instagram.png    1x,
+                                links/instagram@2x.png 2x,
+                                links/instagram@3x.png 3x
+                            "
+                            width="16"
+                            height="16"
+                            alt=""
+                        />
+                        Instagram
+                    </a>
+                </li>
+                <li>
+                    <a href="https://www.facebook.com/snoobyx" target="_blank" rel="me noopener noreferrer">
+                        <img
+                            src="links/facebook.png"
+                            srcset="
+                                links/facebook.png    1x,
+                                links/facebook@2x.png 2x,
+                                links/facebook@3x.png 3x
+                            "
+                            width="16"
+                            height="16"
+                            alt=""
+                        />
+                        Facebook
+                    </a>
+                </li>
+                <li>
+                    <a href="https://www.youtube.com/@snoobyx" target="_blank" rel="me noopener noreferrer">
+                        <img
+                            src="links/youtube.png"
+                            srcset="
+                                links/youtube.png    1x,
+                                links/youtube@2x.png 2x,
+                                links/youtube@3x.png 3x
+                            "
+                            width="16"
+                            height="16"
+                            alt=""
+                        />
+                        YouTube
+                    </a>
+                </li>
+                <li>
+                    <a href="https://www.tiktok.com/@snoobyx" target="_blank" rel="me noopener noreferrer">
+                        <img
+                            src="links/tiktok.png"
+                            srcset="
+                                links/tiktok.png    1x,
+                                links/tiktok@2x.png 2x,
+                                links/tiktok@3x.png 3x
+                            "
+                            width="16"
+                            height="16"
+                            alt=""
+                        />
+                        TikTok
+                    </a>
+                </li>
+                <li>
+                    <a href="https://x.com/snoobyx" target="_blank" rel="me noopener noreferrer">
+                        <img
+                            src="links/x.png"
+                            srcset="
+                                links/x.png    1x,
+                                links/x@2x.png 2x,
+                                links/x@3x.png 3x
+                            "
+                            width="16"
+                            height="16"
+                            alt=""
+                        />
+                        X / Twitter
+                    </a>
+                </li>
+                <li>
+                    <a href="https://www.printables.com/@DynoZap" target="_blank" rel="me noopener noreferrer">
+                        <img
+                            src="links/printables.png"
+                            srcset="
+                                links/printables.png    1x,
+                                links/printables@2x.png 2x,
+                                links/printables@3x.png 3x
+                            "
+                            width="16"
+                            height="16"
+                            alt=""
+                        />
+                        Printables
+                    </a>
+                </li>
+                <li>
+                    <a href="https://makerworld.com/@dynozap" target="_blank" rel="me noopener noreferrer">
+                        <img
+                            src="links/makerworld.png"
+                            srcset="
+                                links/makerworld.png    1x,
+                                links/makerworld@2x.png 2x,
+                                links/makerworld@3x.png 3x
+                            "
+                            width="16"
+                            height="16"
+                            alt=""
+                        />
+                        MakerWorld
+                    </a>
+                </li>
+            </ul>
+        </main>
     </body>
 </html>
