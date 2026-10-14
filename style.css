@@ -37,6 +37,10 @@ img {
 
 .logo {
   margin: 0;
+  /* The img's layout box starts at 50% and is only moved back visually
+     (transform below), so it sticks out on the right. Safari counts that
+     and adds a horizontal scroll; clipping here stops it. */
+  overflow: hidden;
 }
 
 /* Centring without half pixels:
