@@ -1,60 +1,44 @@
 @font-face {
   font-family: "Inter";
-  /* Latin-only subset of Inter Variable (~52 KB instead of ~352 KB). */
-  src: url("fonts/InterVariable.woff2") format("woff2");
+  src: url("fonts/InterVariable.woff2") format("woff2"); /* Latin-only subset, ~52 KB */
   font-weight: 100 900;
-  font-style: normal;
   font-display: swap;
+}
+
+:root {
+  --bg: #edf0f2; /* sky tint, so the white fills show. Also theme-color in index.html */
+}
+
+html {
+  image-rendering: pixelated; /* inherited: any scaled image stays sharp */
 }
 
 body {
   margin: 0;
   padding: 32px 0;
-  color: #000000;
-  background: #ffffff;
+  color: #000;
+  background: var(--bg);
   text-align: center;
-  font-size: 16px;
-  font-family:
-    "Inter",
-    system-ui,
-    -apple-system,
-    "Segoe UI",
-    Roboto,
-    "Noto Sans",
-    Arial,
-    sans-serif;
-}
-
-/* Pixel art: when the browser has to scale an image, use nearest-neighbour
-   instead of smoothing. At 1x/2x/3x nothing is scaled, so this changes
-   nothing; on in-between screens (125%, 2.625x…) it keeps edges sharp. */
-img {
-  image-rendering: pixelated;
+  font: 16px "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", Arial, sans-serif;
 }
 
 /* ---------- Logo ---------- */
-/* Size and file come from the <picture> rules in index.html. */
+/* File and size come from the <picture> in index.html. */
 
 .logo {
+  position: relative; /* over the sky */
   margin: 0;
-  /* The img's layout box starts at 50% and is only moved back visually
-     (transform below), so it sticks out on the right. Safari counts that
-     and adds a horizontal scroll; clipping here stops it. */
-  overflow: hidden;
+  overflow: hidden; /* the img box sticks out right (see below); stops Safari side-scroll */
 }
 
-/* Centring without half pixels:
-   - put the image's left edge at the middle of the page, rounded to 8px
-     (8px is a whole number of screen pixels at 1x, 1.25x, 1.5x, 2x,
-     2.625x, 2.75x, 3x… so the edge always lands on a real pixel),
-   - then pull it back by half its own width. Every logo file is an even
-     number of pixels wide, so "half" is always whole screen pixels too.
-   The result is at most 4px off true centre — invisible, but pixel-exact. */
+/* Centred without half pixels: left edge at 50% rounded to 8px (whole screen
+   pixels at every supported scale), then back by half its own even width.
+   At most 4px off true centre. */
 .logo img {
   display: block;
-  max-width: 100%; /* safety net for very narrow screens */
+  max-width: 100%;
   height: auto;
-  margin-left: 50%; /* fallback for browsers without round() */
+  margin-left: 50%; /* fallback without round() */
   margin-left: round(nearest, 50%, 8px);
   transform: translateX(-50%);
 }
@@ -82,24 +66,17 @@ img {
   text-decoration: none;
 }
 
-.links img {
+.links img,
+.links a::before {
   flex: none;
 }
 
-/* Default icon: any link without its own <img> gets the generic link icon.
-   So a new link (an article, say) can be just <li><a href="…">Title</a></li>. */
+/* A link without its own <img> gets the generic link icon. */
 .links a:not(:has(img))::before {
   content: "";
-  flex: none;
   width: 16px;
   height: 16px;
-  background: image-set(
-      url("links/link.png") 1x,
-      url("links/link@2x.png") 2x,
-      url("links/link@3x.png") 3x
-    )
-    center / 16px 16px no-repeat;
-  image-rendering: pixelated; /* not an <img>, so the img rule doesn't cover it */
+  background: image-set(url("links/link.png") 1x, url("links/link@2x.png") 2x, url("links/link@3x.png") 3x) 0 0 / 100%;
 }
 
 /* Underline that slides in on hover / keyboard focus */
@@ -110,7 +87,7 @@ img {
   bottom: 0;
   width: 100%;
   height: 1px;
-  background-color: currentColor;
+  background: currentColor;
   transform: scaleX(0);
   transform-origin: bottom right;
   transition: transform 250ms ease-out;
@@ -127,8 +104,157 @@ img {
   outline-offset: 2px;
 }
 
+/* ---------- Scenery ---------- */
+/*
+   Drawn in DESIGN pixels (the 480x160 logo grid). One block per screen range:
+     --n / --d   CSS px per design px, as a fraction so the maths stays exact
+     --steps     --trip x screen px per design px (first number in the comment):
+                 every step moves exactly 1 screen pixel. Change with --trip.
+     --small / --medium   cloud sheets at the matching resolution
+   Ranges MUST match the logo <picture> in index.html. Every block sets every
+   value, so the last matching block wins.
+*/
+:root {
+  --trip: 810;                           /* tile width in design px (see Tiles) */
+  --px: calc(1px * var(--n) / var(--d)); /* one design pixel in CSS px */
+                                         /* 1 · 1x screens: logo 480px */
+  --n: 1; --d: 1; --steps: 810;
+  --small: url("scenery/clouds-small.png"); --medium: url("scenery/clouds-medium.png");
+}
+@media (resolution >= 1.5dppx) {                        /* 1 · 2x phones: logo 240px */
+  :root { --n: 1; --d: 2; --steps: 810;
+    --small: url("scenery/clouds-small.png"); --medium: url("scenery/clouds-medium.png"); }
+}
+@media (resolution >= 2.5dppx) {                        /* 2 · Androids: logo 366px */
+  :root { --n: 61; --d: 80; --steps: 1620;
+    --small: url("scenery/clouds-small@2x.png"); --medium: url("scenery/clouds-medium@2x.png"); }
+}
+@media (resolution >= 2.9dppx) {                        /* 2 · iPhones: logo 320px */
+  :root { --n: 2; --d: 3; --steps: 1620;
+    --small: url("scenery/clouds-small@2x.png"); --medium: url("scenery/clouds-medium@2x.png"); }
+}
+@media (width > 480px) and (resolution >= 2dppx) {      /* 2 · iPad */
+  :root { --n: 1; --d: 1; --steps: 1620;
+    --small: url("scenery/clouds-small@2x.png"); --medium: url("scenery/clouds-medium@2x.png"); }
+}
+@media (width > 480px) and (resolution >= 2.9dppx) {    /* 3 · iPhones sideways */
+  :root { --n: 1; --d: 1; --steps: 2430;
+    --small: url("scenery/clouds-small@3x.png"); --medium: url("scenery/clouds-medium@3x.png"); }
+}
+@media (width > 960px) {                                /* 2 · desktop */
+  :root { --n: 2; --d: 1; --steps: 1620;
+    --small: url("scenery/clouds-small@2x.png"); --medium: url("scenery/clouds-medium@2x.png"); }
+}
+@media (width > 960px) and (resolution >= 1.25dppx) {   /* 2 · laptops at 125% */
+  :root { --n: 8; --d: 5; --steps: 1620;
+    --small: url("scenery/clouds-small@2x.png"); --medium: url("scenery/clouds-medium@2x.png"); }
+}
+@media (width > 960px) and (resolution >= 1.5dppx) {    /* 3 · laptops at 150% */
+  :root { --n: 2; --d: 1; --steps: 2430;
+    --small: url("scenery/clouds-small@3x.png"); --medium: url("scenery/clouds-medium@3x.png"); }
+}
+@media (width > 960px) and (resolution >= 2dppx) {      /* 4 · Mac, 4K at 200% */
+  :root { --n: 2; --d: 1; --steps: 3240;
+    --small: url("scenery/clouds-small@4x.png"); --medium: url("scenery/clouds-medium@4x.png"); }
+}
+
+.scene {
+  position: relative;
+  padding-top: calc(30 * var(--px)); /* open sky above the logo */
+}
+
+.sky {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/*
+   Layers: one cloud size and one speed each, so clouds in a layer never
+   overtake. "near" is later in the HTML, so it paints over "far".
+     --w / --h   cloud size in design px (each sheet is 3 clouds side by side)
+     --tick      time per design pixel: bigger = slower = further away
+     --top       row of the layer's first lane (see Lanes)
+*/
+.far,
+.near {
+  position: absolute;
+  inset: 0;
+  display: flex; /* tiles side by side */
+}
+.far  { --w: 45; --h: 15; --sheet: var(--small);  --tick: 280ms; --top: 15; }
+.near { --w: 90; --h: 30; --sheet: var(--medium); --tick: 140ms; --top: 10; }
+
+/*
+   Tiles: each layer is a row of identical tiles, --trip wide. When a cloud
+   loops, its twin in the next tile carries on from the same pixel, so the sky
+   never ends. --trip is also the density (shorter tile = more clouds).
+   5 tiles cover ~7900px; phones and tablets need 2.
+*/
+.tile {
+  position: relative;
+  flex: none;
+  width: calc(var(--trip) * var(--px));
+}
+@media (width <= 960px) {
+  .tile:nth-child(n + 3) { display: none; }
+}
+
+/*
+   Lanes, 30 design px apart. Big: rows 10, 40, 70. Small: 15, 45, 75, 105.
+   A small cloud sits 5px into a big lane, so their bottom lines are always
+   10px apart: they overlap, but never share a line.
+
+   One line per cloud, in HTML order (every tile is the same):
+     --cell    far:  0 large, 1 medium, 2 small
+               near: 0 round, 1 dome,   2 leaning
+     --lane    0 = top. Big 0–2, small 0–3. Lane 2+ is behind the letters
+               on phones (seen beside the logo on wide screens).
+     --start   position in its trip when the page opens (0–1)
+   Rules: starts roughly evenly spread, lanes zig-zag, no shape twice in a row.
+   Starts are tuned so nothing overlaps on load, the sky has no big empty
+   stretch, far 3 enters the Y's notch on phones and near 2 starts just
+   before the S on desktop.
+*/
+.far  .cloud:nth-child(1) { --cell: 0; --lane: 1; --start: 0.16; }
+.far  .cloud:nth-child(2) { --cell: 2; --lane: 0; --start: 0.30; }
+.far  .cloud:nth-child(3) { --cell: 1; --lane: 2; --start: 0.50; }
+.far  .cloud:nth-child(4) { --cell: 0; --lane: 1; --start: 0.66; }
+.far  .cloud:nth-child(5) { --cell: 2; --lane: 3; --start: 0.93; }
+
+.near .cloud:nth-child(1) { --cell: 0; --lane: 0; --start: 0.80; }
+.near .cloud:nth-child(2) { --cell: 2; --lane: 2; --start: 0.14; }
+.near .cloud:nth-child(3) { --cell: 1; --lane: 1; --start: 0.51; }
+
+.cloud {
+  --time: calc(var(--trip) * var(--tick));    /* one full trip */
+  --row: calc(var(--top) + var(--lane) * 30); /* design px */
+  position: absolute;
+  left: 0;
+  /* Drawn n times too big, then scaled by 1/d: browsers round background
+     sizes to whole CSS px, but not scales, so every pixel stays 1:1. */
+  width: calc(var(--w) * var(--n) * 1px);
+  height: calc(var(--h) * var(--n) * 1px);
+  background: var(--sheet) no-repeat;
+  background-size: calc(var(--w) * 3 * var(--n) * 1px) calc(var(--h) * var(--n) * 1px);
+  background-position: calc(var(--cell) * var(--w) * var(--n) * -1px) 0;
+  scale: calc(1 / var(--d));
+  transform-origin: 0 0;
+  animation: drift var(--time) steps(var(--steps)) infinite;
+  animation-delay: calc(var(--time) * var(--start) * -1);
+}
+
+/* Across one tile, from just off its left edge. The row is a translate, not
+   "top": layout can't place things at 1/3 or 1/5 px (iPhone, 125%), transforms can. */
+@keyframes drift {
+  from { translate: calc(var(--w) * -1 * var(--px))            calc(var(--row) * var(--px)); }
+  to   { translate: calc((var(--trip) - var(--w)) * var(--px)) calc(var(--row) * var(--px)); }
+}
+
+/* ---------- Less motion ---------- */
+
 @media (prefers-reduced-motion: reduce) {
-  .links a::after {
-    transition: none;
-  }
+  .links a::after { transition: none; }
+  .cloud { animation-play-state: paused; }
 }
