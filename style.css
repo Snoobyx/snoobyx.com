@@ -1,7 +1,6 @@
 @font-face {
-  font-family: "Inter";
-  src: url("fonts/InterVariable.woff2") format("woff2"); /* Latin-only subset, ~52 KB */
-  font-weight: 100 900;
+  font-family: "Departure Mono";
+  src: url("fonts/DepartureMono.woff2") format("woff2"); /* Latin subset, ~6 KB. Licence: fonts/OFL-DepartureMono.txt */
   font-display: swap;
 }
 
@@ -19,7 +18,15 @@ body {
   color: #000;
   background: var(--bg);
   text-align: center;
-  font: 16px "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", Arial, sans-serif;
+  /* Departure Mono is drawn on an 11px grid, so it's only sharp at multiples of 11px.
+     22px is sharp at 1x, 1.5x, 2x and 3x (soft only at 125% and 2.625x).
+     At 22px one font pixel = 2px: capitals 16px, lowercase 12px, letters 14px wide. */
+  font-family: "Departure Mono", ui-monospace, monospace;
+  font-size: 22px;
+  /* The font's own line height is 28px; any change must come in whole font
+     pixels (2px top + 2px bottom) to keep the text on its grid. At 24px the
+     capitals sit centred (4px to 20px), matching the 24px link icons. */
+  line-height: 24px;
 }
 
 /* ---------- Logo ---------- */
@@ -53,15 +60,17 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 8px;
+  /* the menu cursor (see below) */
+  --arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 6 10' shape-rendering='crispEdges'%3E%3Cpath d='M0 0h2v1h1v1h1v1h1v1h1v2h-1v1h-1v1h-1v1h-1v1h-2z'/%3E%3C/svg%3E");
 }
 
 .links a {
-  position: relative;
+  position: relative; /* anchors the cursor arrow */
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 12px;
-  line-height: 16px;
+  /* --nudge moves icon + text right without changing the row's width */
+  padding: 8px calc(12px - var(--nudge, 0px)) 8px calc(12px + var(--nudge, 0px));
   color: inherit;
   text-decoration: none;
 }
@@ -71,32 +80,58 @@ body {
   flex: none;
 }
 
-/* A link without its own <img> gets the generic link icon. */
-.links a:not(:has(img))::before {
-  content: "";
-  width: 16px;
-  height: 16px;
-  background: image-set(url("links/link.png") 1x, url("links/link@2x.png") 2x, url("links/link@3x.png") 3x) 0 0 / 100%;
+/*
+   Selected = hovered (real pointer only, so a tap on a phone doesn't leave a
+   row stuck) or keyboard-focused. Everything below reads these variables:
+     --sprite   which half of the icon sprite is shown
+     --nudge    icon + text step 4px right (two font pixels), instantly
+     --cursor / --blink   the menu arrow appears and blinks
+*/
+@media (hover: hover) {
+  .links a:hover { --sprite: right; --nudge: 4px; --cursor: visible; --blink: blink; }
+}
+.links a:focus-visible { --sprite: right; --nudge: 4px; --cursor: visible; --blink: blink; }
+
+/*
+   Icons are sprites: 48x24, rest on the left half, hover on the right.
+   Shown 24x24, so only one half is visible at a time. The swap is instant,
+   no fade: a pixel is either one colour or the other.
+*/
+.links img {
+  object-fit: cover;
+  object-position: var(--sprite, left);
 }
 
-/* Underline that slides in on hover / keyboard focus */
+/* A link without its own <img> gets the generic link icon (same sprite layout).
+   The plain url() is for browsers without image-set(). */
+.links a:not(:has(img))::before {
+  content: "";
+  width: 24px;
+  height: 24px;
+  background: url("links/link.png") left / 200% 100%;
+  background: image-set(url("links/link.png") 1x, url("links/link@2x.png") 2x, url("links/link@3x.png") 3x) left / 200% 100%;
+  background-position: var(--sprite, left);
+}
+
+/* Menu cursor: a 6x10 pixel arrow, drawn as a mask so it takes the text colour.
+   Its right edge sits 8px before the icon (12px padding), 12px once nudged.
+   The animation only gets a name while selected, so it restarts on every hover
+   and the arrow always shows straight away. */
 .links a::after {
   content: "";
   position: absolute;
-  left: 0;
-  bottom: 0;
-  width: 100%;
-  height: 1px;
+  left: -2px;
+  top: 15px; /* centred on the 40px row */
+  width: 6px;
+  height: 10px;
   background: currentColor;
-  transform: scaleX(0);
-  transform-origin: bottom right;
-  transition: transform 250ms ease-out;
+  -webkit-mask: var(--arrow) 0 0 / 100% 100%;
+  mask: var(--arrow) 0 0 / 100% 100%;
+  visibility: var(--cursor, hidden);
+  animation: var(--blink, none) 1s steps(1) infinite;
 }
-
-.links a:hover::after,
-.links a:focus-visible::after {
-  transform: scaleX(1);
-  transform-origin: bottom left;
+@keyframes blink {
+  50% { visibility: hidden; }
 }
 
 .links a:focus-visible {
@@ -255,6 +290,6 @@ body {
 /* ---------- Less motion ---------- */
 
 @media (prefers-reduced-motion: reduce) {
-  .links a::after { transition: none; }
   .cloud { animation-play-state: paused; }
+  .links a::after { animation: none; } /* arrow stays on, no blinking */
 }
