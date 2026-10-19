@@ -136,6 +136,14 @@ main {
 }
 .links a:focus-visible { --row: var(--row-hover); --sprite: right; --nudge: 4px; --cursor: visible; --blink: blink; }
 
+/* Tap feedback on touch screens: instead of the browser's grey tap box, the
+   row gets the hover tint and the icon flashes its brand colours while the
+   finger is down. No arrow or nudge, so nothing jumps under the finger. */
+.links a {
+  -webkit-tap-highlight-color: transparent;
+}
+.links a:active { --row: var(--row-hover); --sprite: right; }
+
 /*
    Icons are sprites: 48x24, rest on the left half, hover on the right.
    Shown 24x24, so only one half is visible at a time. The swap is instant,

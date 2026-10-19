@@ -28,7 +28,9 @@
         <link rel="preload" href="fonts/DepartureMono.woff2" as="font" type="font/woff2" crossorigin />
         <link rel="stylesheet" href="style.css" />
     </head>
-    <body>
+    <!-- ontouchstart: empty on purpose. Without a touch listener iOS Safari
+         never applies :active, so the tap feedback in style.css wouldn't show. -->
+    <body ontouchstart="">
         <header class="scene">
             <!-- Decorative sky: each layer is 5 identical tiles (phones use 2). Which cloud,
                  where and how fast is in style.css (Scenery). A new cloud needs a
