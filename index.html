@@ -66,21 +66,26 @@
             </h1>
         </header>
         <main>
+            <!-- Labels: 19 characters max (the longest now is "Support me on Ko-fi").
+                 Each character is 14px wide. On a 360px phone a row is 328px wide and
+                 needs 60px + 14px per character (24px icon, 8px gap and 14px each side
+                 for the cursor), so 19 fits. Longer labels don't wrap, they run into
+                 the row's edges. -->
             <ul class="links">
-                <li><a href="mailto:denis@snoobyx.com"><img src="links/mail.png" srcset="links/mail@2x.png 2x, links/mail@3x.png 3x" width="24" height="24" alt="" />denis@snoobyx.com</a></li>
-                <li><a href="https://ko-fi.com/snoobyx" target="_blank" rel="me noreferrer"><img src="links/kofi.png" srcset="links/kofi@2x.png 2x, links/kofi@3x.png 3x" width="24" height="24" alt="" />Support me on Ko-fi</a></li>
-                <li><a href="https://signal.me/#eu/dLSe0c5xwKTJXDvyiHNyaASpex2gT5ROMAfSbF-BSTQIrehO3Z9MM5pyGDIiBBLM" target="_blank" rel="me noreferrer"><img src="links/signal.png" srcset="links/signal@2x.png 2x, links/signal@3x.png 3x" width="24" height="24" alt="" />Signal</a></li>
-                <li><a href="https://t.me/Snoobyx" target="_blank" rel="me noreferrer"><img src="links/telegram.png" srcset="links/telegram@2x.png 2x, links/telegram@3x.png 3x" width="24" height="24" alt="" />Telegram</a></li>
-                <li><a href="https://discord.com/users/126821574312460289" target="_blank" rel="me noreferrer"><img src="links/discord.png" srcset="links/discord@2x.png 2x, links/discord@3x.png 3x" width="24" height="24" alt="" />Discord</a></li>
-                <li><a href="https://www.linkedin.com/in/snoobyx/" target="_blank" rel="me noreferrer"><img src="links/linkedin.png" srcset="links/linkedin@2x.png 2x, links/linkedin@3x.png 3x" width="24" height="24" alt="" />LinkedIn</a></li>
-                <li><a href="https://threads.com/@snoobyx" target="_blank" rel="me noreferrer"><img src="links/threads.png" srcset="links/threads@2x.png 2x, links/threads@3x.png 3x" width="24" height="24" alt="" />Threads</a></li>
-                <li><a href="https://www.instagram.com/snoobyx" target="_blank" rel="me noreferrer"><img src="links/instagram.png" srcset="links/instagram@2x.png 2x, links/instagram@3x.png 3x" width="24" height="24" alt="" />Instagram</a></li>
-                <li><a href="https://www.facebook.com/snoobyx" target="_blank" rel="me noreferrer"><img src="links/facebook.png" srcset="links/facebook@2x.png 2x, links/facebook@3x.png 3x" width="24" height="24" alt="" />Facebook</a></li>
-                <li><a href="https://www.youtube.com/@snoobyx" target="_blank" rel="me noreferrer"><img src="links/youtube.png" srcset="links/youtube@2x.png 2x, links/youtube@3x.png 3x" width="24" height="24" alt="" />YouTube</a></li>
-                <li><a href="https://www.tiktok.com/@snoobyx" target="_blank" rel="me noreferrer"><img src="links/tiktok.png" srcset="links/tiktok@2x.png 2x, links/tiktok@3x.png 3x" width="24" height="24" alt="" />TikTok</a></li>
-                <li><a href="https://x.com/snoobyx" target="_blank" rel="me noreferrer"><img src="links/x.png" srcset="links/x@2x.png 2x, links/x@3x.png 3x" width="24" height="24" alt="" />X / Twitter</a></li>
-                <li><a href="https://www.printables.com/@DynoZap" target="_blank" rel="me noreferrer"><img src="links/printables.png" srcset="links/printables@2x.png 2x, links/printables@3x.png 3x" width="24" height="24" alt="" />Printables</a></li>
-                <li><a href="https://makerworld.com/@dynozap" target="_blank" rel="me noreferrer"><img src="links/makerworld.png" srcset="links/makerworld@2x.png 2x, links/makerworld@3x.png 3x" width="24" height="24" alt="" />MakerWorld</a></li>
+                <li><a href="mailto:denis@snoobyx.com"><span><img src="links/mail.png" srcset="links/mail@2x.png 2x, links/mail@3x.png 3x" width="24" height="24" alt="" />denis@snoobyx.com</span></a></li>
+                <li><a href="https://ko-fi.com/snoobyx" target="_blank" rel="me noreferrer"><span><img src="links/kofi.png" srcset="links/kofi@2x.png 2x, links/kofi@3x.png 3x" width="24" height="24" alt="" />Support me on Ko-fi</span></a></li>
+                <li><a href="https://signal.me/#eu/dLSe0c5xwKTJXDvyiHNyaASpex2gT5ROMAfSbF-BSTQIrehO3Z9MM5pyGDIiBBLM" target="_blank" rel="me noreferrer"><span><img src="links/signal.png" srcset="links/signal@2x.png 2x, links/signal@3x.png 3x" width="24" height="24" alt="" />Signal</span></a></li>
+                <li><a href="https://t.me/Snoobyx" target="_blank" rel="me noreferrer"><span><img src="links/telegram.png" srcset="links/telegram@2x.png 2x, links/telegram@3x.png 3x" width="24" height="24" alt="" />Telegram</span></a></li>
+                <li><a href="https://discord.com/users/126821574312460289" target="_blank" rel="me noreferrer"><span><img src="links/discord.png" srcset="links/discord@2x.png 2x, links/discord@3x.png 3x" width="24" height="24" alt="" />Discord</span></a></li>
+                <li><a href="https://www.linkedin.com/in/snoobyx/" target="_blank" rel="me noreferrer"><span><img src="links/linkedin.png" srcset="links/linkedin@2x.png 2x, links/linkedin@3x.png 3x" width="24" height="24" alt="" />LinkedIn</span></a></li>
+                <li><a href="https://threads.com/@snoobyx" target="_blank" rel="me noreferrer"><span><img src="links/threads.png" srcset="links/threads@2x.png 2x, links/threads@3x.png 3x" width="24" height="24" alt="" />Threads</span></a></li>
+                <li><a href="https://www.instagram.com/snoobyx" target="_blank" rel="me noreferrer"><span><img src="links/instagram.png" srcset="links/instagram@2x.png 2x, links/instagram@3x.png 3x" width="24" height="24" alt="" />Instagram</span></a></li>
+                <li><a href="https://www.facebook.com/snoobyx" target="_blank" rel="me noreferrer"><span><img src="links/facebook.png" srcset="links/facebook@2x.png 2x, links/facebook@3x.png 3x" width="24" height="24" alt="" />Facebook</span></a></li>
+                <li><a href="https://www.youtube.com/@snoobyx" target="_blank" rel="me noreferrer"><span><img src="links/youtube.png" srcset="links/youtube@2x.png 2x, links/youtube@3x.png 3x" width="24" height="24" alt="" />YouTube</span></a></li>
+                <li><a href="https://www.tiktok.com/@snoobyx" target="_blank" rel="me noreferrer"><span><img src="links/tiktok.png" srcset="links/tiktok@2x.png 2x, links/tiktok@3x.png 3x" width="24" height="24" alt="" />TikTok</span></a></li>
+                <li><a href="https://x.com/snoobyx" target="_blank" rel="me noreferrer"><span><img src="links/x.png" srcset="links/x@2x.png 2x, links/x@3x.png 3x" width="24" height="24" alt="" />X / Twitter</span></a></li>
+                <li><a href="https://www.printables.com/@DynoZap" target="_blank" rel="me noreferrer"><span><img src="links/printables.png" srcset="links/printables@2x.png 2x, links/printables@3x.png 3x" width="24" height="24" alt="" />Printables</span></a></li>
+                <li><a href="https://makerworld.com/@dynozap" target="_blank" rel="me noreferrer"><span><img src="links/makerworld.png" srcset="links/makerworld@2x.png 2x, links/makerworld@3x.png 3x" width="24" height="24" alt="" />MakerWorld</span></a></li>
             </ul>
         </main>
     </body>

@@ -17,7 +17,6 @@ body {
   padding: 32px 0;
   color: #000;
   background: var(--bg);
-  text-align: center;
   /* Departure Mono is drawn on an 11px grid, so it's only sharp at multiples of 11px.
      22px is sharp at 1x, 1.5x, 2x and 3x (soft only at 125% and 2.625x).
      At 22px one font pixel = 2px: capitals 16px, lowercase 12px, letters 14px wide. */
@@ -52,45 +51,90 @@ body {
 
 /* ---------- Links ---------- */
 
+main {
+  overflow-x: hidden; /* fallback for Safari before 16 */
+  overflow-x: clip; /* the list's layout box sticks out right (see below); stops side-scroll */
+}
+
+/*
+   A column of full-width rows, like Linktree: the whole row is the button.
+   16px from the screen edges on phones, 480px max on bigger screens
+   (the logo's width on iPad and sideways phones, half of it on desktop).
+   Centred without half pixels, like the logo: left edge at 50% rounded to 2px,
+   then back by half its own width, also rounded to 2px. At most 2px off centre.
+*/
 .links {
   list-style: none;
-  margin: 20px 0;
-  padding: 0 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
+  width: min(480px, 100% - 32px);
+  margin: 16px 0;
+  margin-left: 50%; /* fallback without round() */
+  margin-left: round(nearest, 50%, 2px);
+  padding: 0;
+  transform: translateX(-50%); /* fallback without round() */
+  transform: translateX(round(nearest, -50%, 2px));
+  --row-hover: #e2e7ea; /* selected row, a touch darker than --bg */
   /* the menu cursor (see below) */
   --arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 6 10' shape-rendering='crispEdges'%3E%3Cpath d='M0 0h2v1h1v1h1v1h1v1h1v2h-1v1h-1v1h-1v1h-1v1h-2z'/%3E%3C/svg%3E");
 }
+/* At full width (480px), round to 8px like the logo, so the list's edges line
+   up exactly with the logo's on iPad and sideways phones. */
+@media (width >= 512px) {
+  .links { margin-left: round(nearest, 50%, 8px); }
+}
 
+/* One row: 12 + 24 + 12 = 48px tall, no gaps between rows, so there's no
+   dead space anywhere in the column. */
 .links a {
-  position: relative; /* anchors the cursor arrow */
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  /* --nudge moves icon + text right without changing the row's width */
-  padding: 8px calc(12px - var(--nudge, 0px)) 8px calc(12px + var(--nudge, 0px));
+  display: block;
+  padding: 12px 16px;
   color: inherit;
   text-decoration: none;
+  white-space: nowrap;
+  /* Very slight darker sky behind the selected row, with pixel corners: a 2px
+     square of page background painted over each corner. */
+  background:
+    linear-gradient(var(--bg) 0 0) top left / 2px 2px no-repeat,
+    linear-gradient(var(--bg) 0 0) top right / 2px 2px no-repeat,
+    linear-gradient(var(--bg) 0 0) bottom left / 2px 2px no-repeat,
+    linear-gradient(var(--bg) 0 0) bottom right / 2px 2px no-repeat,
+    var(--row, transparent);
+}
+
+/*
+   Icon + label, centred in the row the same way as the column (50% rounded to
+   2px, back by half its width rounded to 2px), so the text always starts on an
+   even CSS pixel and the 2px font pixels stay whole at 1x, 1.5x, 2x and 3x.
+   --nudge adds the 4px step right when selected.
+*/
+.links span {
+  position: relative; /* anchors the cursor arrow */
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: max-content;
+  margin-left: 50%;
+  margin-left: round(nearest, 50%, 2px);
+  transform: translateX(calc(-50% + var(--nudge, 0px)));
+  transform: translateX(calc(round(nearest, -50%, 2px) + var(--nudge, 0px)));
 }
 
 .links img,
-.links a::before {
+.links span::before {
   flex: none;
 }
 
 /*
    Selected = hovered (real pointer only, so a tap on a phone doesn't leave a
    row stuck) or keyboard-focused. Everything below reads these variables:
+     --row      the row's background
      --sprite   which half of the icon sprite is shown
      --nudge    icon + text step 4px right (two font pixels), instantly
      --cursor / --blink   the menu arrow appears and blinks
 */
 @media (hover: hover) {
-  .links a:hover { --sprite: right; --nudge: 4px; --cursor: visible; --blink: blink; }
+  .links a:hover { --row: var(--row-hover); --sprite: right; --nudge: 4px; --cursor: visible; --blink: blink; }
 }
-.links a:focus-visible { --sprite: right; --nudge: 4px; --cursor: visible; --blink: blink; }
+.links a:focus-visible { --row: var(--row-hover); --sprite: right; --nudge: 4px; --cursor: visible; --blink: blink; }
 
 /*
    Icons are sprites: 48x24, rest on the left half, hover on the right.
@@ -104,7 +148,7 @@ body {
 
 /* A link without its own <img> gets the generic link icon (same sprite layout).
    The plain url() is for browsers without image-set(). */
-.links a:not(:has(img))::before {
+.links a:not(:has(img)) span::before {
   content: "";
   width: 24px;
   height: 24px;
@@ -114,14 +158,14 @@ body {
 }
 
 /* Menu cursor: a 6x10 pixel arrow, drawn as a mask so it takes the text colour.
-   Its right edge sits 8px before the icon (12px padding), 12px once nudged.
+   Its right edge sits 8px before the icon, 12px once nudged (it doesn't move).
    The animation only gets a name while selected, so it restarts on every hover
    and the arrow always shows straight away. */
-.links a::after {
+.links span::after {
   content: "";
   position: absolute;
-  left: -2px;
-  top: 15px; /* centred on the 40px row */
+  left: calc(-14px - var(--nudge, 0px));
+  top: 7px; /* centred on the 24px icon */
   width: 6px;
   height: 10px;
   background: currentColor;
@@ -136,7 +180,7 @@ body {
 
 .links a:focus-visible {
   outline: 2px solid currentColor;
-  outline-offset: 2px;
+  outline-offset: -2px; /* inside the row: rows touch, so an outside ring would overlap the next one */
 }
 
 /* ---------- Scenery ---------- */
@@ -291,5 +335,5 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .cloud { animation-play-state: paused; }
-  .links a::after { animation: none; } /* arrow stays on, no blinking */
+  .links span::after { animation: none; } /* arrow stays on, no blinking */
 }
