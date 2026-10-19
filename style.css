@@ -6,6 +6,7 @@
 
 :root {
   --bg: #edf0f2; /* sky tint, so the white fills show. Also theme-color in index.html */
+  --row-hover: #e2e7ea; /* selected link row, a touch darker than --bg */
 }
 
 html {
@@ -72,7 +73,6 @@ main {
   padding: 0;
   transform: translateX(-50%); /* fallback without round() */
   transform: translateX(round(nearest, -50%, 2px));
-  --row-hover: #e2e7ea; /* selected row, a touch darker than --bg */
   /* the menu cursor (see below) */
   --arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 6 10' shape-rendering='crispEdges'%3E%3Cpath d='M0 0h2v1h1v1h1v1h1v1h1v2h-1v1h-1v1h-1v1h-1v1h-2z'/%3E%3C/svg%3E");
 }
@@ -90,6 +90,7 @@ main {
   color: inherit;
   text-decoration: none;
   white-space: nowrap;
+  -webkit-tap-highlight-color: transparent; /* our own tap feedback instead (see below) */
   /* Very slight darker sky behind the selected row, with pixel corners: a 2px
      square of page background painted over each corner. */
   background:
@@ -139,9 +140,6 @@ main {
 /* Tap feedback on touch screens: instead of the browser's grey tap box, the
    row gets the hover tint and the icon flashes its brand colours while the
    finger is down. No arrow or nudge, so nothing jumps under the finger. */
-.links a {
-  -webkit-tap-highlight-color: transparent;
-}
 .links a:active { --row: var(--row-hover); --sprite: right; }
 
 /*
