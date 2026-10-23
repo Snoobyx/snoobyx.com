@@ -6,7 +6,28 @@
 
 :root {
   --bg: #edf0f2; /* sky tint, so the white fills show. Also theme-color in index.html */
-  --row-hover: #e2e7ea; /* selected link row, a touch darker than --bg */
+  /* Selected link row: a see-through tint, so it reads the same on the sky and
+     on the ground. On the sky it comes out exactly #e2e7ea. */
+  --row-hover: rgb(40 79 99 / 5.6%);
+
+  /* Meadow (grass.js reads these). Text, logo, icons and clouds stay pure
+     black and white; the scenery is tinted, nearer = darker and greener,
+     further = lighter and cooler. Mixes are in OKLab.
+       sky (--bg)   hue 236, the page itself
+       land         hue 150: the ground, and the rim 40% of the way to the grass
+       grass        hue 160, fading toward the sky with distance (22%, 45%)
+       petals       all at OKLCH L 0.62 C 0.20, only the hue differs (3:1+ on
+                    the ground); one yellow centre for all bloomed flowers */
+  --ground: #e2e8e3;
+  --rim: #a3ada6;
+  --grass: #4d5b53;
+  --grass-mid: #6e7a73;
+  --grass-far: #919b97;
+  --petal-violet: #8a67f3;
+  --petal-red: #e44a08;
+  --petal-pink: #de4181;
+  --petal-blue: #2981fb;
+  --petal-centre: #ffdf50;
 }
 
 html {
@@ -68,6 +89,11 @@ main {
   list-style: none;
   width: min(480px, 100% - 32px);
   margin: 16px 0;
+  /* Room above the list for the meadow's land edge (sky, the edge's wobble,
+     then a strip of land above the first link): 4 meadow tiles, 2 on phones,
+     rounded up to the 8px grid. --tile is set per screen in Scenery. */
+  margin-top: 96px; /* fallback without round() */
+  margin-top: round(up, var(--tile) * 4, 8px);
   margin-left: 50%; /* fallback without round() */
   margin-left: round(nearest, 50%, 2px);
   padding: 0;
@@ -81,6 +107,9 @@ main {
 @media (width >= 512px) {
   .links { margin-left: round(nearest, 50%, 8px); }
 }
+@media (width < 640px) {
+  .links { margin-top: 32px; margin-top: round(up, var(--tile) * 2, 8px); }
+}
 
 /* One row: 12 + 24 + 12 = 48px tall, no gaps between rows, so there's no
    dead space anywhere in the column. */
@@ -91,14 +120,18 @@ main {
   text-decoration: none;
   white-space: nowrap;
   -webkit-tap-highlight-color: transparent; /* our own tap feedback instead (see below) */
-  /* Very slight darker sky behind the selected row, with pixel corners: a 2px
-     square of page background painted over each corner. */
-  background:
-    linear-gradient(var(--bg) 0 0) top left / 2px 2px no-repeat,
-    linear-gradient(var(--bg) 0 0) top right / 2px 2px no-repeat,
-    linear-gradient(var(--bg) 0 0) bottom left / 2px 2px no-repeat,
-    linear-gradient(var(--bg) 0 0) bottom right / 2px 2px no-repeat,
-    var(--row, transparent);
+  position: relative;
+  isolation: isolate; /* keeps the tint below (::before) inside the row */
+}
+/* The selected row's tint, with pixel corners: 2px cut out of each corner
+   (clip-path), so they show whatever is behind, sky or ground. */
+.links a::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--row, transparent);
+  clip-path: polygon(2px 0, calc(100% - 2px) 0, calc(100% - 2px) 2px, 100% 2px, 100% calc(100% - 2px), calc(100% - 2px) calc(100% - 2px), calc(100% - 2px) 100%, 2px 100%, 2px calc(100% - 2px), 0 calc(100% - 2px), 0 2px, 2px 2px);
 }
 
 /*
@@ -196,6 +229,11 @@ main {
      --steps     --trip x screen px per design px (first number in the comment):
                  every step moves exactly 1 screen pixel. Change with --trip.
      --small / --medium   cloud sheets at the matching resolution
+     --tile      one meadow tile (24 sprite px) in CSS px: a whole number of
+                 screen px per sprite px, about 1 CSS px, so on desktop it is
+                 the size of the link icons. Only sizes the space above the
+                 list; grass.js works out the exact tile itself (on unusual
+                 screens they can differ a little: the hills just get lower)
    Ranges MUST match the logo <picture> in index.html. Every block sets every
    value, so the last matching block wins.
 */
@@ -203,43 +241,43 @@ main {
   --trip: 810;                           /* tile width in design px (see Tiles) */
   --px: calc(1px * var(--n) / var(--d)); /* one design pixel in CSS px */
                                          /* 1 · 1x screens: logo 480px */
-  --n: 1; --d: 1; --steps: 810;
+  --n: 1; --d: 1; --steps: 810; --tile: 24px;
   --small: url("scenery/clouds-small.png"); --medium: url("scenery/clouds-medium.png");
 }
 @media (resolution >= 1.5dppx) {                        /* 1 · 2x phones: logo 240px */
-  :root { --n: 1; --d: 2; --steps: 810;
+  :root { --n: 1; --d: 2; --steps: 810; --tile: 12px;
     --small: url("scenery/clouds-small.png"); --medium: url("scenery/clouds-medium.png"); }
 }
 @media (resolution >= 2.5dppx) {                        /* 2 · Androids: logo 366px */
-  :root { --n: 61; --d: 80; --steps: 1620;
+  :root { --n: 61; --d: 80; --steps: 1620; --tile: calc(48px / 2.625);
     --small: url("scenery/clouds-small@2x.png"); --medium: url("scenery/clouds-medium@2x.png"); }
 }
 @media (resolution >= 2.9dppx) {                        /* 2 · iPhones: logo 320px */
-  :root { --n: 2; --d: 3; --steps: 1620;
+  :root { --n: 2; --d: 3; --steps: 1620; --tile: 16px;
     --small: url("scenery/clouds-small@2x.png"); --medium: url("scenery/clouds-medium@2x.png"); }
 }
 @media (width > 480px) and (resolution >= 2dppx) {      /* 2 · iPad */
-  :root { --n: 1; --d: 1; --steps: 1620;
+  :root { --n: 1; --d: 1; --steps: 1620; --tile: 24px;
     --small: url("scenery/clouds-small@2x.png"); --medium: url("scenery/clouds-medium@2x.png"); }
 }
 @media (width > 480px) and (resolution >= 2.9dppx) {    /* 3 · iPhones sideways */
-  :root { --n: 1; --d: 1; --steps: 2430;
+  :root { --n: 1; --d: 1; --steps: 2430; --tile: 24px;
     --small: url("scenery/clouds-small@3x.png"); --medium: url("scenery/clouds-medium@3x.png"); }
 }
 @media (width > 960px) {                                /* 2 · desktop */
-  :root { --n: 2; --d: 1; --steps: 1620;
+  :root { --n: 2; --d: 1; --steps: 1620; --tile: 24px;
     --small: url("scenery/clouds-small@2x.png"); --medium: url("scenery/clouds-medium@2x.png"); }
 }
 @media (width > 960px) and (resolution >= 1.25dppx) {   /* 2 · laptops at 125% */
-  :root { --n: 8; --d: 5; --steps: 1620;
+  :root { --n: 8; --d: 5; --steps: 1620; --tile: 19.2px;
     --small: url("scenery/clouds-small@2x.png"); --medium: url("scenery/clouds-medium@2x.png"); }
 }
 @media (width > 960px) and (resolution >= 1.5dppx) {    /* 3 · laptops at 150% */
-  :root { --n: 2; --d: 1; --steps: 2430;
+  :root { --n: 2; --d: 1; --steps: 2430; --tile: 32px;
     --small: url("scenery/clouds-small@3x.png"); --medium: url("scenery/clouds-medium@3x.png"); }
 }
 @media (width > 960px) and (resolution >= 2dppx) {      /* 4 · Mac, 4K at 200% */
-  :root { --n: 2; --d: 1; --steps: 3240;
+  :root { --n: 2; --d: 1; --steps: 3240; --tile: 24px;
     --small: url("scenery/clouds-small@4x.png"); --medium: url("scenery/clouds-medium@4x.png"); }
 }
 
@@ -336,6 +374,38 @@ main {
   from { translate: calc(var(--w) * -1 * var(--px))            calc(var(--row) * var(--px)); }
   to   { translate: calc((var(--trip) - var(--w)) * var(--px)) calc(var(--row) * var(--px)); }
 }
+
+/* ---------- Meadow ---------- */
+/*
+   Drawn by grass.js. The ground and its edge go under the links, the grass
+   and the butterfly over them (so tufts beside a short label stay visible on
+   a tinted row). None of it catches the pointer.
+*/
+main {
+  position: relative;
+  z-index: 1;
+  padding-bottom: 72px; /* fallback without round() */
+  padding-bottom: round(up, var(--tile) * 3, 8px); /* three rows of meadow under the last link, on the 8px grid */
+}
+.meadow,
+.meadow > * {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+}
+.meadow {
+  width: 100%;
+  overflow: hidden; /* a butterfly at the edge never makes the page scroll sideways */
+}
+.meadow .ground {
+  right: 0;
+  bottom: 0;
+  background: var(--ground);
+}
+.meadow .grass { z-index: 2; } /* the butterfly is drawn on it too */
+/* keyboard focus: the links come forward, so no tuft covers the focus ring */
+main:has(a:focus-visible) { z-index: 3; }
 
 /* ---------- Less motion ---------- */
 

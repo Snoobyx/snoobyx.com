@@ -27,6 +27,7 @@
 
         <link rel="preload" href="fonts/DepartureMono.woff2" as="font" type="font/woff2" crossorigin />
         <link rel="stylesheet" href="style.css" />
+        <script src="grass.js" defer></script> <!-- the meadow below the links; the page works without it -->
     </head>
     <!-- ontouchstart: empty on purpose. Without a touch listener iOS Safari
          never applies :active, so the tap feedback in style.css wouldn't show. -->
@@ -90,5 +91,7 @@
                 <li><a href="https://makerworld.com/@dynozap" target="_blank" rel="me noreferrer"><span><img src="links/makerworld.png" srcset="links/makerworld@2x.png 2x, links/makerworld@3x.png 3x" width="24" height="24" alt="" />MakerWorld</span></a></li>
             </ul>
         </main>
+        <!-- Decorative meadow: grass, land, wind and a butterfly, drawn by grass.js -->
+        <div class="meadow" aria-hidden="true"></div>
     </body>
 </html>
