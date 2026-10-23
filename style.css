@@ -12,7 +12,7 @@
 
   /* Meadow (grass.js reads these). Text, logo, icons and clouds stay pure
      black and white; the scenery is tinted, nearer = darker and greener,
-     further = lighter and cooler. Mixes are in OKLab.
+     further = lighter and cooler. The in-between colours were mixed in OKLab.
        sky (--bg)   hue 236, the page itself
        land         hue 150: the ground, and the rim 40% of the way to the grass
        grass        hue 160, fading toward the sky with distance (22%, 45%)
@@ -131,7 +131,12 @@ main {
   inset: 0;
   z-index: -1;
   background: var(--row, transparent);
-  clip-path: polygon(2px 0, calc(100% - 2px) 0, calc(100% - 2px) 2px, 100% 2px, 100% calc(100% - 2px), calc(100% - 2px) calc(100% - 2px), calc(100% - 2px) 100%, 2px 100%, 2px calc(100% - 2px), 0 calc(100% - 2px), 0 2px, 2px 2px);
+  clip-path: polygon(
+    2px 0, calc(100% - 2px) 0, calc(100% - 2px) 2px, 100% 2px,                                  /* top right */
+    100% calc(100% - 2px), calc(100% - 2px) calc(100% - 2px), calc(100% - 2px) 100%,           /* bottom right */
+    2px 100%, 2px calc(100% - 2px), 0 calc(100% - 2px),                                         /* bottom left */
+    0 2px, 2px 2px                                                                               /* top left */
+  );
 }
 
 /*
@@ -249,7 +254,7 @@ main {
     --small: url("scenery/clouds-small.png"); --medium: url("scenery/clouds-medium.png"); }
 }
 @media (resolution >= 2.5dppx) {                        /* 2 · Androids: logo 366px */
-  :root { --n: 61; --d: 80; --steps: 1620; --tile: calc(48px / 2.625);
+  :root { --n: 61; --d: 80; --steps: 1620; --tile: calc(48px / 2.625); /* 2 screen px per sprite px */
     --small: url("scenery/clouds-small@2x.png"); --medium: url("scenery/clouds-medium@2x.png"); }
 }
 @media (resolution >= 2.9dppx) {                        /* 2 · iPhones: logo 320px */
@@ -381,7 +386,7 @@ main {
    and the butterfly over them (so tufts beside a short label stay visible on
    a tinted row). None of it catches the pointer.
 */
-main {
+main { /* (its overflow is set in Links) */
   position: relative;
   z-index: 1;
   padding-bottom: 72px; /* fallback without round() */
@@ -396,7 +401,7 @@ main {
 }
 .meadow {
   width: 100%;
-  overflow: hidden; /* a butterfly at the edge never makes the page scroll sideways */
+  overflow: hidden; /* the canvases can be a few px wider than the window (pixel alignment): no sideways scroll */
 }
 .meadow .ground {
   right: 0;

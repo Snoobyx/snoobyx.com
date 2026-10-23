@@ -67,7 +67,9 @@
     ground: tok("--ground"), rim: tok("--rim"), centre: tok("--petal-centre"),
   };
   const PETAL = Object.fromEntries(PETALS.map((p) => [p, tok("--petal-" + p)]));
-  const probe = document.createElement("canvas").getContext("2d", { willReadFrequently: true });
+  const probeCanvas = document.createElement("canvas");
+  probeCanvas.width = probeCanvas.height = 1;
+  const probe = probeCanvas.getContext("2d", { willReadFrequently: true });
   const rgbCache = new Map();
   function rgb(colour) { // any CSS colour -> [r, g, b], by painting one pixel
     let v = rgbCache.get(colour);
@@ -102,7 +104,8 @@
   const key = (c, r) => c + "," + r;
 
   /* ---------- state ---------- */
-  let sheet = null, moth = null, atlas = null; // the sprite images, and the sheet's pixels (null if the browser won't share them)
+  let sheet = null, moth = null; // the sprite images (meadow, butterfly)
+  let atlas = null; // the meadow sheet's pixels, null if the browser won't share them
   let dpr = 1, S = 1, T = 24, W = 0, H = 0, cx = 0, bottom = 0, gridTop = 0, grassTop = 0, rows = 0;
   let zones = [], top = null, cells = new Map(), list = [];
   const painted = new Map(); // bloomed flowers survive a relayout
@@ -113,7 +116,7 @@
   function readScale() {
     const n = parseFloat(tok("--n")) || 1, d = parseFloat(tok("--d")) || 1;
     dpr = window.devicePixelRatio || 1;
-    S = Math.max(1, Math.round(dpr * Math.min(1, n / d))); // screen px per sprite px (--tile in style.css is the usual result)
+    S = Math.max(1, Math.round(dpr * Math.min(1, n / d))); // screen px per sprite px (see --tile in style.css)
     T = 24 * S;
   }
   const cssPx = (v) => v / dpr + "px";
@@ -146,7 +149,9 @@
     let c = bases.get(colour);
     if (c) return c;
     const ink = rgb(colour), d = new ImageData(new Uint8ClampedArray(atlas.data), atlas.width, atlas.height), a = d.data;
-    for (let i = 0; i < a.length; i += 4) if (a[i + 3] && near(a, i, [0, 0, 0])) { a[i] = ink[0]; a[i + 1] = ink[1]; a[i + 2] = ink[2]; }
+    for (let i = 0; i < a.length; i += 4) {
+      if (a[i + 3] && near(a, i, [0, 0, 0])) { a[i] = ink[0]; a[i + 1] = ink[1]; a[i + 2] = ink[2]; }
+    }
     c = document.createElement("canvas");
     c.width = d.width; c.height = d.height;
     c.getContext("2d").putImageData(d, 0, 0);
@@ -174,7 +179,10 @@
     return c;
   }
   // Depth: far rows fade toward the sky in 3 flat steps, like distance in real air.
-  const inkFor = (fromTop) => (rows < 3 ? COL.near : [COL.far, COL.mid, COL.near][Math.min(2, Math.floor((3 * fromTop) / rows))]);
+  function inkFor(fromTop) {
+    if (rows < 3) return COL.near;
+    return [COL.far, COL.mid, COL.near][Math.min(2, Math.floor((3 * fromTop) / rows))];
+  }
 
   /* ---------- the land's edge ---------- */
   // An edge the way a pixel artist draws one: straight stretches joined by
@@ -226,7 +234,10 @@
       const rise = [];
       for (let k = 1; k <= h; k++) for (let c = 0; c < k * f; c++) rise.push(k);
       w = Math.max(w, 2 * rise.length + 2);
-      for (let c = 0; c < w && x + c < len; c++) { const d = Math.min(c, w - 1 - c); out[x + c] = d < rise.length ? rise[d] : h; }
+      for (let c = 0; c < w && x + c < len; c++) {
+        const d = Math.min(c, w - 1 - c); // distance from the lump's nearer end
+        out[x + c] = d < rise.length ? rise[d] : h;
+      }
       x += w + 6 + Math.floor(hash(salt, n++, 44) * 16);
     }
     return out;
@@ -258,7 +269,10 @@
     const m = SET.clearance * T;
     zones = [...links.querySelectorAll("span")].map((s) => {
       const r = s.getBoundingClientRect();
-      return { l: (r.left + scrollX - 18) * dpr - m, r: (r.right + scrollX) * dpr + m, t: (r.top + scrollY) * dpr - m, b: (r.bottom + scrollY) * dpr + m };
+      return {
+        l: (r.left + scrollX - 18) * dpr - m, r: (r.right + scrollX) * dpr + m,
+        t: (r.top + scrollY) * dpr - m, b: (r.bottom + scrollY) * dpr + m,
+      };
     });
     const lr = links.getBoundingClientRect();
     cx = Math.round((((lr.left + lr.right) / 2 + scrollX) * dpr) / S) * S; // grid centred on the links
@@ -277,7 +291,8 @@
     for (let i = 0; i < LX; i++) top[i] = Math.max(sky, hy - rise[i] - bumps[i]);
     for (let i = 1; i < LX - 1; i++) { // where a lump meets a slope: no 1px spike or notch
       const a = top[i - 1], b = top[i + 1];
-      if ((top[i] < a && top[i] < b) || (top[i] > a && top[i] > b)) top[i] = Math.abs(top[i] - a) < Math.abs(top[i] - b) ? a : b;
+      const spike = (top[i] < a && top[i] < b) || (top[i] > a && top[i] > b);
+      if (spike) top[i] = Math.abs(top[i] - a) < Math.abs(top[i] - b) ? a : b; // level with the nearer neighbour
     }
     drawLand(hy);
 
@@ -285,9 +300,8 @@
     rows = Math.max(0, Math.floor((bottom - Math.min(...top) * S) / T));
     gridTop = bottom - rows * T;
     grassTop = place(grass, gridTop, bottom);
-    twitch.clear(); // leans and gusts belong to the old cells
+    twitch.clear(); // leans belong to the old cells
     generate();
-    ctx.imageSmoothingEnabled = false;
     for (const cl of list) draw(cl);
 
     // the butterfly keeps flying: same spot on screen, but it picks a new flower
@@ -328,12 +342,6 @@
     return true;
   }
 
-  function below(x, r) { // tiles in the row below that sit under [x, x + T)
-    const out = [];
-    for (let c = Math.floor((x - cx) / T); c <= Math.floor((x + T - 1 - cx) / T); c++) { const cl = cells.get(key(c, r - 1)); if (cl) out.push(cl); }
-    return out;
-  }
-
   function generate() {
     cells = new Map(); list = [];
     for (let r = 0; r < rows; r++) {
@@ -354,14 +362,21 @@
         if (hash(c, r, 1) >= prob) continue;
         const l1 = cells.get(key(c - 1, r));
         if (l1 && cells.get(key(c - 2, r))) continue; // never 3 in a row
-        const banned = new Set(below(x, r).map((b) => b.type));
-        if (l1) banned.add(l1.type); // no identical neighbours
+        const under = cells.get(key(c, r - 1));
+        const banned = new Set([l1 && l1.type, under && under.type]); // no identical neighbours
         const fp = SET.flowers * (noise(c, r, 3, 21) > 0.6 ? 2.5 : 0.35); // flowers in clusters
         let opts = (hash(c, r, 2) < fp ? FLOWERS : TUFTS).filter((t) => !banned.has(t));
         if (!opts.length) opts = TUFTS.filter((t) => !banned.has(t));
         if (!opts.length) continue;
         const type = opts[Math.floor(hash(c, r, 3) * opts.length)];
-        const cell = { c, r, x, y, type, mir: hash(c, r, 4) < 0.5 ? 1 : 0, f: 0, col: null, mid: x + T / 2, fromTop, ink: inkFor(fromTop) };
+        const cell = {
+          c, r, x, y, type, fromTop,
+          mir: hash(c, r, 4) < 0.5 ? 1 : 0, // mirrored
+          f: 0, // frame: 0 rest, 1 and 2 leaning
+          col: null, // petal colours once bloomed
+          mid: x + T / 2,
+          ink: inkFor(fromTop),
+        };
         const was = painted.get(key(c, r));
         if (was && was.type === type && was.mir === cell.mir) cell.col = was.col;
         cells.set(key(c, r), cell);
@@ -408,7 +423,10 @@
     run();
   }
   (function schedule() {
-    setTimeout(() => { if (onScreen && !document.hidden) startGust(); schedule(); }, SET.gustEvery * 1000 * (0.6 + Math.random() * 0.8));
+    setTimeout(() => {
+      if (onScreen && !document.hidden) startGust();
+      schedule();
+    }, SET.gustEvery * 1000 * (0.6 + Math.random() * 0.8));
   })();
   const run = () => { if (!loop && !wait) loop = requestAnimationFrame(tick); }; // one loop, never two
   function rest() {
@@ -424,7 +442,10 @@
     lastT = now;
     let n = SET.breeze * (list.length / 100) * (dt / 1000); // a tuft here and there leans for a moment
     n = Math.floor(n) + (Math.random() < n % 1 ? 1 : 0);
-    while (n-- > 0) { const cl = list[(Math.random() * list.length) | 0]; if (!twitch.has(cl)) twitch.set(cl, now + 240 + Math.random() * 220); }
+    while (n-- > 0) {
+      const cl = list[(Math.random() * list.length) | 0];
+      if (!twitch.has(cl)) twitch.set(cl, now + 240 + Math.random() * 220);
+    }
     // gusts: bands crossing left to right; lean 1, 2, 2, 1
     const maxLag = (0.6 + Math.max(0, rows - 1) * 0.15) * T;
     for (const g of gusts) g.front = -2 * T + (now - g.t0) * g.speed;
@@ -435,7 +456,10 @@
       let f = 0;
       if (gusts.length) {
         const lag = (hash(cl.r, 0, 9) - 0.5) * 1.2 * T + cl.fromTop * 0.15 * T; // uneven, slightly slanted front
-        for (const g of gusts) { const d = (g.front - cl.mid - lag) / T; if (d > 0 && d < g.w) f = Math.max(f, g.strong && d > g.w * 0.25 && d < g.w * 0.75 ? 2 : 1); }
+        for (const g of gusts) {
+          const d = (g.front - cl.mid - lag) / T; // tiles behind the gust's front
+          if (d > 0 && d < g.w) f = Math.max(f, g.strong && d > g.w * 0.25 && d < g.w * 0.75 ? 2 : 1);
+        }
       }
       const end = twitch.get(cl);
       if (end) { if (now < end) f = Math.max(f, 1); else twitch.delete(cl); }
@@ -451,7 +475,8 @@
 
   /* ---------- flowers bloom under a mouse, and stay ---------- */
   let pointer = null, hoverRaf = 0, lastPt = null; // pointer in CSS px of the window
-  const pointerAt = () => pointer && { x: (pointer.x + scrollX) * dpr, y: (pointer.y + scrollY) * dpr }; // on the page, in screen px
+  // where the pointer is on the page, in screen px (still right after scrolling)
+  const pointerAt = () => pointer && { x: (pointer.x + scrollX) * dpr, y: (pointer.y + scrollY) * dpr };
   addEventListener("pointermove", (e) => {
     pointer = { x: e.clientX, y: e.clientY }; // the butterfly keeps away from it
     if (e.pointerType !== "mouse" || !laidOut) return;
@@ -488,7 +513,10 @@
           const k = atlas.data[i + 3] ? KEYS.findIndex((kc) => near(atlas.data, i, kc)) : -1;
           if (k >= 0) found[k >> 1].push([x, y]);
         }
-        heads[type][mir] = found.filter((f) => f.length).map((f) => ({ x: f.reduce((a, q) => a + q[0], 0) / f.length, top: Math.min(...f.map((q) => q[1])) }));
+        heads[type][mir] = found.filter((f) => f.length).map((f) => ({
+          x: f.reduce((a, q) => a + q[0], 0) / f.length, // centre column
+          top: Math.min(...f.map((q) => q[1])), // top row
+        }));
       }
     }
   }
@@ -513,13 +541,19 @@
   function arrive() {
     bfTimer = 0;
     const [v0, v1] = view();
-    if (!bfOK() || gridTop > v1 - 2 * T) { bfTimer = setTimeout(arrive, 400); return; } // waits for the meadow to be on screen
+    if (!bfOK() || gridTop > v1 - 2 * T) { // waits for the meadow to be on screen
+      bfTimer = setTimeout(arrive, 400);
+      return;
+    }
     const lo = Math.max(skyLimit() + T, v0 + T), hi = Math.max(lo + T, Math.min(bottom, v1) - 2 * T);
     const left = Math.random() < 0.5;
     const seen = list.filter((c) => c.type >= 3 && c.y > lo && c.y < hi && (c.mid < cx) === left);
     Object.assign(bf, {
-      state: "fly", x: left ? -3 * S : W + 3 * S, y: seen.length ? seen[(Math.random() * seen.length) | 0].y : lo + Math.random() * (hi - lo),
-      vx: 0, vy: 0, target: null, wander: null, flee: 0, inside: false, until: performance.now() + SET.bf.stay * 1000,
+      state: "fly",
+      x: left ? -3 * S : W + 3 * S, // just outside the screen edge
+      y: seen.length ? seen[(Math.random() * seen.length) | 0].y : lo + Math.random() * (hi - lo), // near a flower
+      vx: 0, vy: 0, target: null, wander: null, flee: 0, inside: false,
+      until: performance.now() + SET.bf.stay * 1000,
     });
     bfRun(0);
   }
@@ -573,7 +607,12 @@
     bf.seq = null; bf.f = 2; bf.nextF = now + 1200 + Math.random() * 1500;
   }
   function takeOff() { bf.state = "fly"; bf.target = null; bf.vy = -sp(); }
-  const leave = () => { bf.state = "leave"; bf.target = null; bf.wander = null; bf.exitX = bf.x < W / 2 ? -40 * S : W + 40 * S; };
+  function leave() { // out by the nearer side
+    bf.state = "leave";
+    bf.target = bf.wander = null;
+    bf.exitX = bf.x < W / 2 ? -40 * S : W + 40 * S;
+  }
+  const alive = (cl) => cl && cells.get(key(cl.c, cl.r)) === cl; // still in the current meadow (not an old layout's)
 
   // 30 updates a second in flight, 20 while sitting, none when it can't be seen
   const bfRun = (ms) => { if (!bfLoop) bfLoop = setTimeout(() => requestAnimationFrame(bfTick), ms); };
@@ -603,7 +642,7 @@
     if (bf.state === "land") {
       bf.x = bf.lx + bf.target.f * S; // rides the flower as it sways
       bf.y = bf.ly;
-      if (!list.includes(bf.target)) bf.state = "fly";
+      if (!alive(bf.target)) bf.state = "fly";
       else if (now > bf.perchUntil) { takeOff(); if (now > bf.until) leave(); } // a visit ends calmly, from a flower
     } else {
       let tx, ty;
@@ -615,7 +654,9 @@
         const settling = now < bf.settleUntil;
         if (bf.target && now > bf.legEnd) bf.target = null;
         if (bf.flee > 0) bf.target = null; // mid-dart: no plans yet
-        else if (!bf.target || !list.includes(bf.target)) { if (!pickTarget(settling) && (!bf.wander || bf.wanderDone)) pickWander(now); }
+        else if (!alive(bf.target)) {
+          if (!pickTarget(settling) && (!bf.wander || bf.wanderDone)) pickWander(now);
+        }
         else if (settling && now > bf.recheck) { // the cursor may have moved on: a nearer flower?
           bf.recheck = now + 400;
           const was = bf.target, wh = bf.head, wd = Math.hypot(bf.lx - bf.x, bf.ly - bf.y);
@@ -635,12 +676,18 @@
       const cruise = 1 + 0.8 * Math.min(1, Math.max(0, (d - 4 * T) / (10 * T))); // long trips go faster
       let wx = (dx / d) * v * slow * cruise + Math.sin(bf.t * 2.3) * v * 0.5 * flutter;
       let wy = (dy / d) * v * slow * cruise + (Math.sin(bf.t * 7.1) * 0.6 + Math.cos(bf.t * 1.7) * 0.3) * v * flutter;
-      if (d >= 1.5 * T) for (const g of gusts) { const gd = (g.front - bf.x) / T; if (gd > 0 && gd < g.w) wx += v * 1.5; } // blown along
+      if (d >= 1.5 * T) { // blown along by a passing gust
+        for (const g of gusts) { const gd = (g.front - bf.x) / T; if (gd > 0 && gd < g.w) wx += v * 1.5; }
+      }
       const final = homing && d < 1.5 * T; // last stretch: straight in
       if (final) { wx = (dx / d) * Math.min(v, d * 4); wy = (dy / d) * Math.min(v, d * 4); }
       if (bf.flee > 0) bf.flee -= dt;
       else {
-        if (pd < 110 * dpr && bf.state === "fly") { const push = (1 - pd / (110 * dpr)) * v * 2.5; wx += (pdx / pd) * push; wy += (pdy / pd) * push; } // around the cursor
+        if (pd < 110 * dpr && bf.state === "fly") { // steers around the cursor
+          const push = (1 - pd / (110 * dpr)) * v * 2.5;
+          wx += (pdx / pd) * push;
+          wy += (pdy / pd) * push;
+        }
         const k = Math.min(1, dt * (final ? 10 : 3));
         bf.vx += (wx - bf.vx) * k; bf.vy += (wy - bf.vy) * k;
       }
@@ -700,8 +747,16 @@
   }, 1000);
 
   /* ---------- start: once the sprites and the font are ready ---------- */
-  const loadImg = (src) => new Promise((ok) => { const im = new Image(); im.onload = () => ok(im); im.onerror = () => ok(null); im.src = src; });
-  Promise.all([loadImg("scenery/meadow.png"), loadImg("scenery/butterfly.png"), document.fonts ? document.fonts.ready : null]).then(([im, bm]) => {
+  function loadImg(src) { // resolves with the image, or null if it fails
+    return new Promise((done) => {
+      const im = new Image();
+      im.onload = () => done(im);
+      im.onerror = () => done(null);
+      im.src = src;
+    });
+  }
+  const fontsReady = document.fonts ? document.fonts.ready : null; // the labels' width depends on the font
+  Promise.all([loadImg("scenery/meadow.png"), loadImg("scenery/butterfly.png"), fontsReady]).then(([im, bm]) => {
     if (!im) return; // no sprites, no meadow (the page is fine without it)
     sheet = im;
     moth = bm;
@@ -712,7 +767,7 @@
       x.drawImage(im, 0, 0);
       atlas = x.getImageData(0, 0, c.width, c.height);
       findHeads();
-    } catch (e) {
+    } catch {
       atlas = null; // plain black grass, no blooming: the meadow still shows
     }
     layout();
@@ -732,9 +787,4 @@
       }, 150);
     });
   });
-
-  // for automated tests only: open the page with ?meadow-test
-  if (/[?&]meadow-test\b/.test(location.search)) {
-    window.__meadow = { get: () => ({ list, top, zones, S, T, dpr, cx, rows, gridTop, bottom, bf, atlas: !!atlas }) };
-  }
 })();
